@@ -5,7 +5,7 @@
     "explorer.compactFolders": false,
     "terminal.integrated.fontSize": 24,
     "editor.rulers": [80, 120],
-    "workbench.colorTheme": "OM Theme (Default Dracula Italic)",
+    "workbench.colorTheme": "Default Dark Modern",
     "workbench.iconTheme": "material-icon-theme",
     "code-runner.executorMap": {
       "python": "clear ; python -u"
@@ -21,9 +21,9 @@
       "editor.insertSpaces": true,
       "editor.formatOnSave": true,
       "editor.codeActionsOnSave": {
-        "source.fixAll": true,
-        "source.fixAll.unusedImports": true,
-        "source.organizeImports": true
+        "source.fixAll": "explicit",
+        "source.fixAll.unusedImports": "explicit",
+        "source.organizeImports": "explicit"
       }
     },
     "python.languageServer": "Pylance",
