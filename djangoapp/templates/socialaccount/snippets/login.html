@@ -1,0 +1,23 @@
+{% load i18n %}
+{% load allauth %}
+{% load socialaccount %}
+{% get_providers as socialaccount_providers %}
+{% if socialaccount_providers %}
+    {% if not SOCIALACCOUNT_ONLY %}
+        <hr>
+        <h2 class="text-center">{% trans "Ou" %}</h2>
+    {% endif %}
+    <div class="d-flex justify-content-center">
+        {% for provider in socialaccount_providers %}
+            {% if provider.id == "google" %}
+                <a href="{% provider_login_url provider.id %}" class="btn btn-outline-secondary d-flex align-items-center">
+                    <div class="bg-danger text-white rounded-circle d-flex justify-content-center align-items-center" style="width: 24px; height: 24px;">
+                        G
+                    </div>
+                    <span class="ms-2">Faça login com {{ provider.name }}</span>
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% include "socialaccount/snippets/login_extra.html" %}
+{% endif %}

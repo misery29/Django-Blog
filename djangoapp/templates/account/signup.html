@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load allauth i18n %}
+{% load widget_tweaks %}
+
+{% block head_title %}
+    {% trans "Signup" %}
+{% endblock head_title %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h1 class="text-center">{% trans "Sign Up" %}</h1>
+                {% setvar link %}
+                    <a href="{{ login_url }}">
+                {% endsetvar %}
+                {% setvar end_link %}
+                    </a>
+                {% endsetvar %}
+                {% if not SOCIALACCOUNT_ONLY %}
+                    {% url 'account_signup' as action_url %}
+                    <form method="post" action="{{ action_url }}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {% for field in form %}
+                                <div class="mb-3">
+                                    {% if field.name == "remember" %}
+                                        <div class="form-check">
+                                            {{ field|add_class:"form-check-input" }}
+                                            {{ field.label_tag }}
+                                        </div>
+                                    {% else %}
+                                        {{ field.label_tag }}
+                                        {{ field|add_class:"form-control" }}
+                                    {% endif %}
+                                    {{ field.errors }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {{ redirect_field }}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-block mt-3">{% trans "Sign Up" %}</button>
+                        </div>
+                        <br>
+                        <p class="text-center">
+                            {% blocktranslate %}Already have an account? Then please {{ link }}sign in{{ end_link }}.{% endblocktranslate %}
+                        </p>
+                    </form>
+                {% endif %}
+                {% if SOCIALACCOUNT_ENABLED %}
+                    <hr>
+                    {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}
