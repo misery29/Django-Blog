@@ -2,10 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import UserProfileForm
 from .models import UserProfile 
+from campos.models import Campo
 
 # Create your views here.
 def index(request):
-    return render(request, 'usuarios/index.html')
+    campos = Campo.objects.all()
+    return render(request, 'usuarios/index.html', {'campos': campos})
 
 @login_required
 def profile_view(request):

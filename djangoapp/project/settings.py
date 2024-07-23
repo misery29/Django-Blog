@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'widget_tweaks',
     'usuarios',
+    'campos',
 ]
 
 SITE_ID = 1

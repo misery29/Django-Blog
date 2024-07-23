@@ -52,43 +52,55 @@
         </div>
     </div>
 
+    <!-- Search Form -->
+    <div class="container mb-4">
+        <h2>Buscar Campos</h2>
+        <form method="get" action="{% url 'campos:index' %}">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    {{ form.cidade.label_tag }}
+                    {{ form.cidade }}
+                </div>
+                <div class="form-group col-md-3">
+                    {{ form.tipo_gramado.label_tag }}
+                    {{ form.tipo_gramado }}
+                </div>
+                <div class="form-group col-md-3">
+                    {{ form.iluminacao_noturna.label_tag }}
+                    {{ form.iluminacao_noturna }}
+                </div>
+                <div class="form-group col-md-3">
+                    {{ form.vestuario.label_tag }}
+                    {{ form.vestuario }}
+                </div>
+                <div class="form-group col-md-12">
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <!-- Field Listings -->
     <div class="container">
         <h2 class="mb-4">Campos Disponíveis</h2>
         <div class="row">
+            {% for campo in campos %}
             <div class="col-md-4">
                 <div class="card field-card">
-                    <img src="campo1.jpg" class="card-img-top" alt="Campo 1">
+                    <img src="{{ campo.foto.url }}" class="card-img-top" alt="{{ campo.nome }}">
                     <div class="card-body">
-                        <h5 class="card-title">Campo 1</h5>
-                        <p class="card-text">Localização: Bairro X</p>
-                        <p class="card-text">Preço: R$ 100/hora</p>
+                        <h5 class="card-title">{{ campo.nome }}</h5>
+                        <p class="card-text">Localização: {{ campo.localizacao }}</p>
+                        <p class="card-text">Preço: R$ {{ campo.preco }}</p>
+                        <p class="card-text">Dimensão: {{ campo.dimensao }}</p>
+                        <p class="card-text">Tipo de Gramado: {{ campo.tipo_gramado }}</p>
+                        <p class="card-text">Iluminação Noturna: {{ campo.iluminacao_noturna }}</p>
+                        <p class="card-text">Vestiário: {{ campo.vestuario }}</p>
                         <a href="#" class="btn btn-primary">Mais Informações</a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card field-card">
-                    <img src="campo2.jpg" class="card-img-top" alt="Campo 2">
-                    <div class="card-body">
-                        <h5 class="card-title">Campo 2</h5>
-                        <p class="card-text">Localização: Bairro Y</p>
-                        <p class="card-text">Preço: R$ 150/hora</p>
-                        <a href="#" class="btn btn-primary">Mais Informações</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card field-card">
-                    <img src="campo3.jpg" class="card-img-top" alt="Campo 3">
-                    <div class="card-body">
-                        <h5 class="card-title">Campo 3</h5>
-                        <p class="card-text">Localização: Bairro Z</p>
-                        <p class="card-text">Preço: R$ 120/hora</p>
-                        <a href="#" class="btn btn-primary">Mais Informações</a>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -109,7 +121,7 @@
                             <a href="#" class="text-dark">Home</a>
                         </li>
                         <li>
-                            <a href=" {% url 'usuarios:profile' %}" class="text-dark">Sobre</a>
+                            <a href="{% url 'usuarios:profile' %}" class="text-dark">Sobre</a>
                         </li>
                         <li>
                             <a href="#" class="text-dark">Campos</a>
@@ -135,14 +147,13 @@
                 </div>
             </div>
         </div>
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            &copy; 2024 AluGol. Todos os direitos reservados.
+        <div class="text-center p-3">
+            © 2024 AluGol. Todos os direitos reservados.
         </div>
     </footer>
 
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
