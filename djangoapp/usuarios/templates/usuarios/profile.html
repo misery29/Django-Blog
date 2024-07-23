@@ -6,24 +6,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-header img {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+        .profile-header h2 {
+            margin-top: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-section label {
+            font-weight: bold;
+        }
+        .form-control, .form-control-file {
+            border-radius: 0.25rem;
+            font-size: 14px;
+            padding: 10px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 0.25rem;
+            padding: 8px 16px;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            border-radius: 0.25rem;
+            padding: 8px 16px;
+            margin-left: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .btn-secondary a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .btn-secondary a:hover {
+            color: #ddd;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
-    <h2>User Profile</h2>
-    <form method="POST" enctype="multipart/form-data">
+    <div class="profile-header">
+        {% if user.userprofile.profile_picture %}
+            <img src="{{ user.userprofile.profile_picture.url }}" alt="Current Profile Picture" class="img-thumbnail mb-3">
+        {% else %}
+            <img src="default_profile_picture_url" alt="Default Profile Picture" class="img-thumbnail mb-3">
+        {% endif %}
+        <h2>{{ user.username }}</h2>
+        <p>{{ user.email }}</p>
+    </div>
+    <form method="POST" enctype="multipart/form-data" class="w-50 mx-auto">
         {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Username</label>
+            {% render_field form.username class="form-control" %}
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            {% render_field form.email class="form-control" %}
+        </div>
         <div class="form-group">
             <label for="phone_number">Phone Number</label>
             {% render_field form.phone_number class="form-control" %}
         </div>
         <div class="form-group">
             <label for="profile_picture">Profile Picture</label>
-            {% if user.userprofile.profile_picture %}
-                <img src="{{ user.userprofile.profile_picture.url }}" alt="Current Profile Picture" class="img-thumbnail mb-3" style="max-width: 200px;">
-            {% endif %}
             {% render_field form.profile_picture class="form-control-file" %}
         </div>
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <button type="button" class="btn btn-secondary">
+            <a href="{% url 'usuarios:index' %}">Voltar</a>
+        </button>
     </form>
 </div>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

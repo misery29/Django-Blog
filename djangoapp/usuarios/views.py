@@ -12,11 +12,16 @@ def index(request):
 @login_required
 def profile_view(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+        form = UserProfileForm(request.POST, request.FILES, instance=user_profile, user=request.user)
+        
         if form.is_valid():
             form.save()
-            return redirect('usuarios:index')
+            return redirect('usuarios:profile')
     else:
-        form = UserProfileForm(instance=user_profile)
-    return render(request, 'usuarios/profile.html', {'form': form})
+        form = UserProfileForm(instance=user_profile, user=request.user)
+    
+    return render(request, 'usuarios/profile.html', {
+        'form': form
+    })
