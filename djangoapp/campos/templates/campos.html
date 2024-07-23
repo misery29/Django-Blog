@@ -1,0 +1,70 @@
+{% block campos %}
+<div class="container mt-4">
+    <h1>Buscar Campos</h1>
+    <!-- Search Form -->
+    <form method="get" action="{% url 'campos:list_fields' %}">
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="id_cidade">Cidade</label>
+                <input type="text" id="id_cidade" name="cidade" class="form-control" placeholder="Cidade">
+            </div>
+            <div class="form-group col-md-3">
+                 <label for="id_tipo_gramado">Tipo de Gramado</label>
+                <select id="id_tipo_gramado" name="tipo_gramado" class="form-control">
+                    <option value="">Escolha...</option>
+                    <option value="natural">Natural</option>
+                    <option value="sintetico">Sintético</option>
+                    <!-- Adicione outras opções conforme necessário -->
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="id_iluminacao_noturna">Iluminação Noturna</label>
+                <select id="id_iluminacao_noturna" name="iluminacao_noturna" class="form-control">
+                    <option value="">Escolha...</option>
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="id_vestuario">Vestiário</label>
+                <select id="id_vestuario" name="vestiarios" class="form-control">
+                    <option value="">Escolha...</option>
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                </select>
+            </div>
+            <div class="form-group col-md-12">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Field Listings -->
+    <h2 class="mt-4">Campos Disponíveis</h2>
+    <div class="row">
+        {% for campo in campos %}
+        <div class="col-md-4">
+            <div class="card field-card mb-4">
+                {% if campo.foto %}
+                <img src="{{ campo.foto.url }}" class="card-img-top" alt="{{ campo.nome }}">
+                {% else %}
+                <img src="default-field.jpg" class="card-img-top" alt="{{ campo.nome }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ campo.nome }}</h5>
+                    <p class="card-text">Localização: {{ campo.cidade }}</p>
+                    <p class="card-text">Preço: R$ {{ campo.preco_por_hora }}</p>
+                    <p class="card-text">Dimensão: {{ campo.dimensao }}</p>
+                    <p class="card-text">Tipo de Gramado: {{ campo.get_tipo_gramado_display }}</p>
+                    <p class="card-text">Iluminação Noturna: {% if campo.iluminacao_noturna %} Sim {% else %} Não {% endif %}</p>
+                    <p class="card-text">Vestiário: {% if campo.vestiarios %} Sim {% else %} Não {% endif %}</p>
+                    <a href="#" class="btn btn-primary">Mais Informações</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>Nenhum campo encontrado.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

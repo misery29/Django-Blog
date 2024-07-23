@@ -3,9 +3,17 @@ from django import forms
 class CampoSearchForm(forms.Form):
     cidade = forms.CharField(required=False, label='Cidade')
     tipo_gramado = forms.ChoiceField(
-        choices=[('Todos', 'Todos'), ('Sintética', 'Sintética'), ('Natural', 'Natural')],
+        choices=[('sintetico', 'sintetico'), ('natural', 'natural')],
         required=False,
         label='Tipo de Gramado'
     )
-    iluminacao_noturna = forms.BooleanField(required=False, label='Iluminação Noturna')
-    vestuario = forms.BooleanField(required=False, label='Vestiário')
+    iluminacao_noturna = forms.ChoiceField(
+        choices=[('', ''), ('false', '0'), ('true', '1')],
+        required=False,
+        label='iluminacao_noturna'
+    )
+    vestiarios = forms.ChoiceField(
+        choices=[('', ''), ('false', '0'), ('true', '1')],
+        required=False,
+        label='vestiarios'
+        )

@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import index
+from campos.views import list_fields
 
 app_name = 'campos'
 
 urlpatterns = [
-    path('', index, name='index'),
+    path('', list_fields, name='list_fields'),
 ]

@@ -15,6 +15,7 @@ class Campo(models.Model):
     iluminacao_noturna = models.BooleanField(default=False)
     vestiarios = models.BooleanField(default=False)
     foto = models.ImageField(upload_to='fotos_campos/', null=True, blank=True)
+    
 
     def __str__(self):
         return self.nome

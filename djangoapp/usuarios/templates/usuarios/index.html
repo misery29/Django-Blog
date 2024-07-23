@@ -53,56 +53,7 @@
     </div>
 
     <!-- Search Form -->
-    <div class="container mb-4">
-        <h2>Buscar Campos</h2>
-        <form method="get" action="{% url 'campos:index' %}">
-            <div class="form-row">
-                <div class="form-group col-md-3">
-                    {{ form.cidade.label_tag }}
-                    {{ form.cidade }}
-                </div>
-                <div class="form-group col-md-3">
-                    {{ form.tipo_gramado.label_tag }}
-                    {{ form.tipo_gramado }}
-                </div>
-                <div class="form-group col-md-3">
-                    {{ form.iluminacao_noturna.label_tag }}
-                    {{ form.iluminacao_noturna }}
-                </div>
-                <div class="form-group col-md-3">
-                    {{ form.vestuario.label_tag }}
-                    {{ form.vestuario }}
-                </div>
-                <div class="form-group col-md-12">
-                    <button type="submit" class="btn btn-primary">Buscar</button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- Field Listings -->
-    <div class="container">
-        <h2 class="mb-4">Campos Disponíveis</h2>
-        <div class="row">
-            {% for campo in campos %}
-            <div class="col-md-4">
-                <div class="card field-card">
-                    <img src="{{ campo.foto.url }}" class="card-img-top" alt="{{ campo.nome }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ campo.nome }}</h5>
-                        <p class="card-text">Localização: {{ campo.localizacao }}</p>
-                        <p class="card-text">Preço: R$ {{ campo.preco_por_hora }}</p>
-                        <p class="card-text">Dimensão: {{ campo.dimensao }}</p>
-                        <p class="card-text">Tipo de Gramado: {{ campo.tipo_gramado }}</p>
-                        <p class="card-text">Iluminação Noturna: {{ campo.iluminacao_noturna }}</p>
-                        <p class="card-text">Vestiário: {{ campo.vestuario }}</p>
-                        <a href="#" class="btn btn-primary">Mais Informações</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
+    {% include 'campos.html' %}
 
     <!-- Footer -->
     <footer class="bg-light text-center text-lg-start mt-5">
