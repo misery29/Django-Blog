@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Campo</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="logo.png" alt="AluGol">
+            AluGol
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'usuarios:index' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'usuarios:profile' %}">Perfil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="">Campos</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_login' %}">Login</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Imagem e Informações do Campo -->
+            <div class="col-md-7">
+                <div class="card mb-4 shadow-sm">
+                    {% if campo.foto %}
+                    <img src="{{ campo.foto.url }}" class="card-img-top" alt="{{ campo.nome }}">
+                    {% else %}
+                    <img src="default-field.jpg" class="card-img-top" alt="Imagem padrão do campo">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ campo.nome }}</h5>
+                        <p class="card-text"><strong>Localização:</strong> {{ campo.endereco }}</p>
+                        <p class="card-text"><strong>Dimensão:</strong> {{ campo.dimensao }}</p>
+                        <p class="card-text"><strong>Tipo de Gramado:</strong> {{ campo.get_tipo_gramado_display }}</p>
+                        <p class="card-text"><strong>Iluminação Noturna:</strong> {% if campo.iluminacao_noturna %} Sim {% else %} Não {% endif %}</p>
+                        <p class="card-text"><strong>Vestiário:</strong> {% if campo.vestiarios %} Sim {% else %} Não {% endif %}</p>
+                        <p class="card-text"><strong>Preço:</strong> R$ {{ campo.preco_por_hora }}</p>
+                        <a href="#" class="btn btn-primary btn-lg">Reservar Agora</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mapa -->
+            <div class="col-md-5">
+                <h5 class="card-title">Localização</h5>
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <div id="map" class="w-100" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Comentários ou Avaliações -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Comentários e Avaliações</h5>
+                        <!-- Aqui você pode adicionar um sistema de comentários ou avaliações se desejar -->
+                        <p>Não há comentários ainda.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adicionando o Bootstrap, Leaflet e Flatpickr -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtém o endereço do campo
+            var endereco = "{{ campo.endereco }}";
+            var apiKey = 'AIzaSyCnyOD_c4KKH7mSvQP_3QObDjg5cyawnC8'; // Substitua pela sua chave de API do Google Maps
+
+            // Função para geocodificar o endereço
+            function geocodeAddress(address, callback) {
+                var geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+                
+                fetch(geocodeURL)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Resposta da API:', data);
+                        
+                        if (data.results.length > 0) {
+                            var lat = parseFloat(data.results[0].geometry.location.lat);
+                            var lon = parseFloat(data.results[0].geometry.location.lng);
+                            callback(lat, lon);
+                        } else {
+                            // Se não encontrar o endereço, adiciona a cidade ao objeto de pesquisa
+                            var cidade = "{{ campo.cidade }}";
+                            var addressWithCity = `${address}, ${cidade}`;
+                            var fallbackGeocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addressWithCity)}&key=${apiKey}`;
+                            
+                            fetch(fallbackGeocodeURL)
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log('Resposta da API com cidade:', data);
+                                    
+                                    if (data.results.length > 0) {
+                                        var lat = parseFloat(data.results[0].geometry.location.lat);
+                                        var lon = parseFloat(data.results[0].geometry.location.lng);
+                                        callback(lat, lon);
+                                    } else {
+                                        console.log('Nenhum resultado encontrado, usando coordenadas padrão.');
+                                        callback(-15.7801, -47.9292); // Coordenadas padrão (Brasília)
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Erro ao geocodificar o endereço com cidade:', error);
+                                    callback(-15.7801, -47.9292); // Coordenadas padrão (Brasília)
+                                });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao geocodificar o endereço:', error);
+                        callback(-15.7801, -47.9292); // Coordenadas padrão (Brasília)
+                    });
+            }
+
+            // Inicializa o mapa
+            function initializeMap(lat, lon) {
+                var map = L.map('map').setView([lat, lon], 15);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                L.marker([lat, lon]).addTo(map);
+            }
+
+            // Geocodifica o endereço e inicializa o mapa
+            geocodeAddress(endereco, function(lat, lon) {
+                initializeMap(lat, lon);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -58,7 +58,7 @@
                     <p class="card-text">Tipo de Gramado: {{ campo.get_tipo_gramado_display }}</p>
                     <p class="card-text">Iluminação Noturna: {% if campo.iluminacao_noturna %} Sim {% else %} Não {% endif %}</p>
                     <p class="card-text">Vestiário: {% if campo.vestiarios %} Sim {% else %} Não {% endif %}</p>
-                    <a href="#" class="btn btn-primary">Mais Informações</a>
+                    <a href="{% url 'campos:detail_fields' campo.pk %}" class="btn btn-primary">Mais Informações</a>
                 </div>
             </div>
         </div>

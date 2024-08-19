@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import Campo
 from .forms import CampoSearchForm
 
@@ -29,3 +30,8 @@ def list_fields(request):
 
     print(form.cleaned_data)
     return render(request, 'usuarios/index.html', {'campos': campos, 'form': form})
+
+@login_required
+def detail_fields(request, pk):
+    campo = get_object_or_404(Campo, pk=pk)
+    return render(request, 'campo_detail.html', {'campo': campo})
