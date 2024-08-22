@@ -74,6 +74,26 @@
                         <div id="map" class="w-100" style="height: 400px;"></div>
                     </div>
                 </div>
+
+                <!-- Modal para Exibição de Erros -->
+                <div class="modal fade" id="erroModal" tabindex="-1" aria-labelledby="erroModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="erroModalLabel">Erro na Reserva</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="erroMensagem"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                         <!-- Formulário de Reserva -->
         <div class="row mt-4 ">
             <div class="col-md-12 text-center">
@@ -130,7 +150,7 @@
             // Inicializa o mapa
             var endereco = "{{ campo.endereco }}";
             var apiKey = 'AIzaSyCnyOD_c4KKH7mSvQP_3QObDjg5cyawnC8';
-
+    
             function geocodeAddress(address, callback) {
                 var geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
                 fetch(geocodeURL)
@@ -160,22 +180,22 @@
                     })
                     .catch(error => callback(-15.7801, -47.9292)); // Coordenadas padrão (Brasília)
             }
-
+    
             function initializeMap(lat, lon) {
                 var map = L.map('map').setView([lat, lon], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap contributors'
                 }).addTo(map);
                 L.marker([lat, lon]).addTo(map)
-                    .bindPopup('Localização do Campo')
+                    .bindPopup(campo.nome)
                     .openPopup();
             }
-
+    
             geocodeAddress(endereco, function (lat, lon) {
                 initializeMap(lat, lon);
             });
-
-        
+    
+    
             // Inicializa o Flatpickr
             flatpickr("#id_data_inicio", {
                 enableTime: true,
@@ -186,17 +206,16 @@
                 enableTime: true,
                 dateFormat: "Y-m-d H:i",
                 time_24hr: true,
-                
             });
-
+    
             // Calcula o preço com base na seleção
             document.querySelector('#id_data_inicio').addEventListener('change', updatePrice);
             document.querySelector('#id_data_fim').addEventListener('change', updatePrice);
-
+    
             function updatePrice() {
                 var dataInicio = flatpickr.parseDate(document.querySelector('#id_data_inicio').value, "Y-m-d H:i");
                 var dataFim = flatpickr.parseDate(document.querySelector('#id_data_fim').value, "Y-m-d H:i");
-
+    
                 if (dataInicio && dataFim && dataInicio < dataFim) {
                     var diffMs = dataFim.getTime() - dataInicio.getTime();
                     var diffHours = diffMs / (1000 * 60 * 60);
@@ -209,7 +228,13 @@
                     document.querySelector('#preco_valor').textContent = '0';
                 }
             }
-        });
+    
+    var erroMensagem = "{{ erro_mensagem|default:'' }}";
+    if (erroMensagem) {
+        document.getElementById('erroMensagem').textContent = erroMensagem;
+        $('#erroModal').modal('show');
+    }
+});
     </script>
 </body>
 

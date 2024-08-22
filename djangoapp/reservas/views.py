@@ -1,32 +1,51 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.utils.dateparse import parse_datetime
 from .models import Campo, Reserva
-from .forms import ReservaForm
-import json
-from django.utils import timezone
-from django.db.models import Min, Max
 from django.http import HttpResponse
+from django.core.exceptions import ValidationError
+
+from django.core.exceptions import ValidationError
 
 def reservar(request, campo_id):
     campo = get_object_or_404(Campo, id=campo_id)
+    erro_mensagem = None
+
     if request.method == 'POST':
         data_inicio = request.POST.get('data_inicio')
         data_fim = request.POST.get('data_fim')
         preco_total = request.POST.get('preco_total')
-        return render(request, 'confirmacao_pagamento.html', {
-            'campo': campo,
-            'data_inicio': data_inicio,
-            'data_fim': data_fim,
-            'preco_total': preco_total
-        })
-    return render(request, 'campos/detalhes_campo.html', {'campo': campo})
+
+        try:
+            # Validações
+            if data_inicio >= data_fim:
+                raise ValidationError("A data de início deve ser anterior à data de fim")
+
+            reservas_conflitantes = Reserva.objects.filter(
+                campo=campo,
+                data_inicio__lt=data_fim,
+                data_fim__gt=data_inicio
+            )
+            if reservas_conflitantes.exists():
+                raise ValidationError("Conflito com outra reserva existente")
+
+            return render(request, 'confirmacao_pagamento.html', {
+                'campo': campo,
+                'data_inicio': data_inicio,
+                'data_fim': data_fim,
+                'preco_total': preco_total
+            })
+
+        except ValidationError as e:
+            erro_mensagem = e.message
+
+    return render(request, 'campo_detail.html', {'campo': campo, 'erro_mensagem': erro_mensagem})
+
 
 def confirmar_reserva(request):
     campo_id = request.POST.get('campo_id')
     if request.method == 'POST':
         campo_id = request.POST.get('campo_id')
-        data_inicio = parse_datetime(request.POST.get('data_inicio'))
-        data_fim = parse_datetime(request.POST.get('data_fim'))
+        data_inicio = request.POST.get('data_inicio')
+        data_fim = request.POST.get('data_fim')
         preco_total = request.POST.get('preco_total')
 
         campo = get_object_or_404(Campo, id=campo_id)
@@ -38,37 +57,10 @@ def confirmar_reserva(request):
             data_fim=data_fim,
             preco_total=preco_total
         )
+
+
+        reserva.clean()
         reserva.save()
 
         return HttpResponse('Reserva confirmada com sucesso!')
     return redirect('reservas:reservar', campo_id=campo_id)
-
-def detalhes_campo(request, campo_id):
-    campo = get_object_or_404(Campo, id=campo_id)
-    reservas = Reserva.objects.filter(campo=campo)
-
-    # Horários indisponíveis (reservas e bloqueios)
-    horarios_indisponiveis = [
-        {
-            "from": reserva.data_inicio.strftime('%Y-%m-%dT%H:%M:%S'),
-            "to": reserva.data_fim.strftime('%Y-%m-%dT%H:%M:%S')
-        }
-        for reserva in reservas
-        if reserva.data_fim > timezone.now()  # Exclui reservas passadas
-    ]
-
-    # Ajuste para minTime e maxTime com base nas reservas
-    min_time = '00:00'
-    max_time = '23:59'
-    
-    if reservas.exists():
-        min_time = reservas.aggregate(Min('data_inicio'))['data_inicio__min'].strftime('%H:%M')
-        max_time = reservas.aggregate(Max('data_fim'))['data_fim__max'].strftime('%H:%M')
-
-    context = {
-        'campo': campo,
-        'horarios_indisponiveis': json.dumps(horarios_indisponiveis),  # Passa os horários como JSON
-        'min_time': min_time,
-        'max_time': max_time,
-    }
-    return render(request, 'campos/detalhes_campo.html', context)
