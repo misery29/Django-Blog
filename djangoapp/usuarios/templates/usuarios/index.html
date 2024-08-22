@@ -36,12 +36,19 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">Campos</a>
                 </li>
+                {% if user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'account_logout' %}">Logout</a>
                 </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_login' %}">Login</a>
+                </li>
+                {% endif %}
             </ul>
         </div>
     </nav>
+    
 
     <!-- Jumbotron -->
     <div class="jumbotron jumbotron-fluid text-center">

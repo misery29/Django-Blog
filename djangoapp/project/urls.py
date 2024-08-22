@@ -24,6 +24,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('' , include('usuarios.urls')),
     path('campos/', include('campos.urls')),
+    path('reservas/', include('reservas.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

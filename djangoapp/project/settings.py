@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'usuarios',
     'campos',
+    'reservas',
 ]
 
 SITE_ID = 1
