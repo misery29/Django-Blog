@@ -34,7 +34,7 @@
                     <a class="nav-link" href="{% url 'usuarios:profile' %}">Perfil</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Campos</a>
+                    <a class="nav-link" href="{% url 'campos:map_view' %}">Campos</a>
                 </li>
                 {% if user.is_authenticated %}
                 <li class="nav-item">

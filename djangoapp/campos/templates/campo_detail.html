@@ -146,95 +146,64 @@
     
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Inicializa o mapa
-            var endereco = "{{ campo.endereco }}";
-            var apiKey = 'AIzaSyCnyOD_c4KKH7mSvQP_3QObDjg5cyawnC8';
-    
-            function geocodeAddress(address, callback) {
-                var geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
-                fetch(geocodeURL)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.results.length > 0) {
-                            var lat = parseFloat(data.results[0].geometry.location.lat);
-                            var lon = parseFloat(data.results[0].geometry.location.lng);
-                            callback(lat, lon);
-                        } else {
-                            var cidade = "{{ campo.cidade }}";
-                            var addressWithCity = `${address}, ${cidade}`;
-                            var fallbackGeocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addressWithCity)}&key=${apiKey}`;
-                            fetch(fallbackGeocodeURL)
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.results.length > 0) {
-                                        var lat = parseFloat(data.results[0].geometry.location.lat);
-                                        var lon = parseFloat(data.results[0].geometry.location.lng);
-                                        callback(lat, lon);
-                                    } else {
-                                        callback(-15.7801, -47.9292); // Coordenadas padrão (Brasília)
-                                    }
-                                })
-                                .catch(error => callback(-15.7801, -47.9292)); // Coordenadas padrão (Brasília)
-                        }
-                    })
-                    .catch(error => callback(-15.7801, -47.9292)); // Coordenadas padrão (Brasília)
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializa o mapa com coordenadas fornecidas pela view Django
+        var lat = parseFloat('{{ latitude|default:"-15.7801" }}');
+        var lon = parseFloat('{{ longitude|default:"-47.9292" }}');
+        var campoNome = "{{ campo.nome|escapejs }}";
+        console.log('Latitude:', lat);
+        console.log('Latitude:', lon);
+
+        function initializeMap(lat, lon) {
+            var map = L.map('map').setView([lat, lon], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup(campoNome)
+                .openPopup();
+        }
+
+        initializeMap(lat, lon);
+
+        // Inicializa o Flatpickr
+        flatpickr("#id_data_inicio", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true
+        });
+        flatpickr("#id_data_fim", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true
+        });
+
+        // Calcula o preço com base na seleção
+        document.querySelector('#id_data_inicio').addEventListener('change', updatePrice);
+        document.querySelector('#id_data_fim').addEventListener('change', updatePrice);
+
+        function updatePrice() {
+            var dataInicio = flatpickr.parseDate(document.querySelector('#id_data_inicio').value, "Y-m-d H:i");
+            var dataFim = flatpickr.parseDate(document.querySelector('#id_data_fim').value, "Y-m-d H:i");
+
+            if (dataInicio && dataFim && dataInicio < dataFim) {
+                var diffMs = dataFim.getTime() - dataInicio.getTime();
+                var diffHours = diffMs / (1000 * 60 * 60);
+                var precoPorHora = parseFloat("{{ campo.preco_por_hora }}");
+                var precoTotal = diffHours * precoPorHora;
+                document.querySelector('#preco_valor').textContent = precoTotal.toFixed(2);
+                document.getElementById('preco_total').setAttribute('value', precoTotal.toFixed(2));
+            } else {
+                document.querySelector('#preco_valor').textContent = '0';
             }
-    
-            function initializeMap(lat, lon) {
-                var map = L.map('map').setView([lat, lon], 15);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
-                L.marker([lat, lon]).addTo(map)
-                    .bindPopup(campo.nome)
-                    .openPopup();
-            }
-    
-            geocodeAddress(endereco, function (lat, lon) {
-                initializeMap(lat, lon);
-            });
-    
-    
-            // Inicializa o Flatpickr
-            flatpickr("#id_data_inicio", {
-                enableTime: true,
-                dateFormat: "Y-m-d H:i",
-                time_24hr: true,
-            });
-            flatpickr("#id_data_fim", {
-                enableTime: true,
-                dateFormat: "Y-m-d H:i",
-                time_24hr: true,
-            });
-    
-            // Calcula o preço com base na seleção
-            document.querySelector('#id_data_inicio').addEventListener('change', updatePrice);
-            document.querySelector('#id_data_fim').addEventListener('change', updatePrice);
-    
-            function updatePrice() {
-                var dataInicio = flatpickr.parseDate(document.querySelector('#id_data_inicio').value, "Y-m-d H:i");
-                var dataFim = flatpickr.parseDate(document.querySelector('#id_data_fim').value, "Y-m-d H:i");
-    
-                if (dataInicio && dataFim && dataInicio < dataFim) {
-                    var diffMs = dataFim.getTime() - dataInicio.getTime();
-                    var diffHours = diffMs / (1000 * 60 * 60);
-                    var precoPorHora = parseFloat("{{ campo.preco_por_hora }}");
-                    var precoTotal = diffHours * precoPorHora;
-                    document.querySelector('#preco_valor').textContent = precoTotal.toFixed(2);
-                    document.getElementById('preco_total').setAttribute('value', precoTotal);
-                    console.log(preco_total.value);
-                } else {
-                    document.querySelector('#preco_valor').textContent = '0';
-                }
-            }
-    
-    var erroMensagem = "{{ erro_mensagem|default:'' }}";
-    if (erroMensagem) {
-        document.getElementById('erroMensagem').textContent = erroMensagem;
-        $('#erroModal').modal('show');
-    }
-});
+        }
+
+        var erroMensagem = "{{ erro_mensagem|escapejs }}";
+        if (erroMensagem) {
+            document.getElementById('erroMensagem').textContent = erroMensagem;
+            $('#erroModal').modal('show');
+        }
+    });
     </script>
 </body>
 

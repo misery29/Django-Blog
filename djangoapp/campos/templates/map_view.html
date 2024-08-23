@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alugol - Todos os campos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 500px; /* Ajusta a altura do mapa conforme necessário */
+            width: 100%;
+            border-radius: .25rem; /* Bordas arredondadas do mapa */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ao redor do mapa */
+        }
+        .leaflet-popup-content-wrapper {
+            color: #333;
+        }
+        .leaflet-popup-content {
+            font-size: 14px;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .card {
+            border-radius: .25rem; /* Bordas arredondadas do card */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ao redor do card */
+        }
+        .card-header {
+            background-color: #f8f9fa; /* Cor de fundo do cabeçalho do card */
+        }
+        .card-body {
+            padding: 1.25rem; /* Padding do corpo do card */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">
+            <img src="logo.png" alt="AluGol">
+            AluGol
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'usuarios:index' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'usuarios:profile' %}">Perfil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="">Campos</a>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_login' %}">Login</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card header">
+            <div class="card-header">
+                <h1 class="mb-0">Todos nossos campos</h1>
+            </div>
+            <div class="card-body">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializa o mapa
+            var map = L.map('map').setView([0, 0], 10); // Define inicialmente a visão do mapa
+
+            // Adiciona a camada de tile do OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Função para definir o mapa na localização do usuário
+            function initializeMap(latitude, longitude) {
+                map.setView([latitude, longitude], 15); // Define a visão do mapa com maior zoom
+
+                // Ícone personalizado para o marcador do usuário
+                var userIcon = L.icon({
+                    iconUrl: 'https://static.vecteezy.com/system/resources/previews/016/314/482/large_2x/map-pointer-art-icons-and-graphics-free-png.png',
+                    iconSize: [70, 80], // Tamanho do ícone
+                    iconAnchor: [35, 45], // Anclagem do ícone
+                    popupAnchor: [0, -32] // Anclagem da popup
+                });
+
+                L.marker([latitude, longitude], { icon: userIcon }).addTo(map)
+                    .bindPopup('Você está aqui!')
+                    .openPopup();
+            }
+
+            // Obtém a localização do usuário
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var userLat = position.coords.latitude;
+                    var userLon = position.coords.longitude;
+
+                    // Inicializa o mapa na localização do usuário
+                    initializeMap(userLat, userLon);
+
+                    // Adiciona marcadores para cada campo
+                    var campos = JSON.parse('{{ campos_json|safe }}');
+                    campos.forEach(function(campo) {
+                        if (campo.latitude && campo.longitude) {
+                            L.marker([campo.latitude, campo.longitude])
+                                .addTo(map)
+                                .bindPopup('<b>' + campo.nome + '</b><br>' + campo.endereco + '<br>' +'<a href="/campos/campo/' + campo.id + '">Ver mais</a>');
+                        }
+                    });
+                }, function() {
+                    // Em caso de erro ao obter a localização
+                    alert("Não foi possível obter a sua localização.");
+                });
+            } else {
+                // Caso o navegador não suporte geolocalização
+                alert("Seu navegador não suporta geolocalização.");
+            }
+        });
+    </script>
+</body>
+</html>
