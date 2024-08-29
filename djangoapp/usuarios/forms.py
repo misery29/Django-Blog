@@ -21,6 +21,23 @@ class UserProfileForm(forms.ModelForm):
             self.fields['username'].initial = user.username
             self.fields['email'].initial = user.email
 
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+        email = cleaned_data.get('email')
+        phone_number = cleaned_data.get('phone_number')
+
+        if len(str(username)) < 3:
+            self.add_error('username', 'Nome de usuário muito curto.')
+
+        if not email or '@' not in email:
+            self.add_error('email', 'Email inválido.')
+
+        if len(str(phone_number)) < 10:
+            self.add_error('phone_number', 'Número de telefone muito curto.')
+
+        return cleaned_data
+
     def save(self, commit=True):
         user = self.instance.user
         user.username = self.cleaned_data['username']
