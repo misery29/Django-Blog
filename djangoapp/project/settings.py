@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'usuarios',
     'campos',
     'reservas',
+    'avaliacoes',
 ]
 
 SITE_ID = 1
