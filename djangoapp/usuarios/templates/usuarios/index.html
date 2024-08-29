@@ -48,7 +48,11 @@
             </ul>
         </div>
     </nav>
-    
+    {% if request.GET.success %}
+    <div class="alert alert-success" role="alert">
+        {{ request.GET.success }}
+    </div>
+    {% endif %}
 
     <!-- Jumbotron -->
     <div class="jumbotron jumbotron-fluid text-center">

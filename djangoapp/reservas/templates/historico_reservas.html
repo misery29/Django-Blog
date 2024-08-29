@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Reservas</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1>Histórico de Reservas</h1>
+    {% if reservas %}
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>Campo</th>
+                <th>Data de Início</th>
+                <th>Data de Fim</th>
+                <th>Preço Total</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+            <tr>
+                <td>{{ reserva.campo.nome }}</td>
+                <td>{{ reserva.data_inicio }}</td>
+                <td>{{ reserva.data_fim }}</td>
+                <td>R$ {{ reserva.preco_total }}</td>
+                <td>
+                    {% if reserva.data_fim < now %}
+                        <span class="badge badge-danger">Finalizada</span>
+                    {% else %}
+                        <span class="badge badge-success">Aberta</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">Nenhuma reserva encontrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'usuarios:profile' %}" class="btn btn-secondary mt-3">Voltar para o Perfil</a>
+        </div>
+    {% else %}
+        <p>Você ainda não fez nenhuma reserva.</p>
+    {% endif %}
+</div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('reserva-form');
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Evita o envio normal do formulário
+
+                // Exibe o modal
+                $('#successModal').modal('show');
+
+                // Após 2 segundos, redireciona para a página inicial
+                setTimeout(function() {
+                    window.location.href = "{% url 'usuarios:index' %}"; // Substitua 'usuarios:index' pela URL correta
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

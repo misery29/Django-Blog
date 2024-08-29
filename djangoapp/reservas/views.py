@@ -2,8 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Campo, Reserva
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError
-
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 def reservar(request, campo_id):
     campo = get_object_or_404(Campo, id=campo_id)
@@ -62,5 +63,13 @@ def confirmar_reserva(request):
         reserva.clean()
         reserva.save()
 
-        return HttpResponse('Reserva confirmada com sucesso!')
+        return redirect('')
     return redirect('reservas:reservar', campo_id=campo_id)
+
+@login_required
+def historico_reservas(request):
+    reservas = Reserva.objects.filter(usuario=request.user).order_by('-data_inicio')
+    now = timezone.now()
+    return render(request, 'historico_reservas.html', {
+        'reservas': reservas,
+        'now' : now, })
