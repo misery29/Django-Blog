@@ -5,12 +5,12 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
 
 def reservar(request, campo_id):
     campo = get_object_or_404(Campo, id=campo_id)
     erro_mensagem = None
-    reservas = Reserva.objects.filter(usuario=request.user).order_by('-data_inicio')
-    now = timezone.now()
 
     if request.method == 'POST':
         data_inicio = request.POST.get('data_inicio')
@@ -75,3 +75,14 @@ def historico_reservas(request):
     return render(request, 'historico_reservas.html', {
         'reservas': reservas,
         'now' : now, })
+
+def test_email_view(request):
+    subject = 'Test Email'
+    message = 'This is a test email sent from Django.'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = ['juaumtest29@gmail.com']
+    try:
+        send_mail(subject, message, from_email, recipient_list)
+        return HttpResponse("Test email sent successfully!")
+    except Exception as e:
+        return HttpResponse(f"Error sending email: {str(e)}")
