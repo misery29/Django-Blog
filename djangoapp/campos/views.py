@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Campo
+from avaliacoes.models import Avaliacao
+from reservas.views import Reserva
 from django.conf import settings
 from .forms import CampoSearchForm
+from django.utils import timezone
 import json
 import requests
 
@@ -75,6 +78,16 @@ def geocode_address(cidade, endereco):
 @login_required
 def detail_fields(request, pk):
     campo = get_object_or_404(Campo, pk=pk)
+    reservas = Reserva.objects.filter(usuario=request.user, campo=campo)
+    now = timezone.now()
+    avaliacao_existente = Avaliacao.objects.filter(campo=campo, usuario=request.user).exists()
+    avaliacoes_ativas = Avaliacao.objects.filter(campo=campo, is_active=True)
+
+    show_button = False
+    for reserva in reservas:
+        if reserva.data_fim < now:
+            show_button = True
+            break 
     
     # Realiza a geocodificação se latitude e longitude ainda não estiverem definidas
     if not campo.latitude or not campo.longitude:
@@ -90,6 +103,12 @@ def detail_fields(request, pk):
         'campo': campo,
         'latitude': latitude_str,
         'longitude': longitude_str,
+        'reservas' : reservas,
+        'now' : now,
+        'avaliacao_existente' : avaliacao_existente,
+        'avaliacoes': avaliacoes_ativas,
+        'show_button' : show_button,
+
     })
 
 def map_view(request):

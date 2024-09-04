@@ -8,3 +8,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    def get_profile_picture_url(self):
+        if self.profile_picture:
+            return self.profile_picture.url

@@ -9,6 +9,8 @@ from django.utils import timezone
 def reservar(request, campo_id):
     campo = get_object_or_404(Campo, id=campo_id)
     erro_mensagem = None
+    reservas = Reserva.objects.filter(usuario=request.user).order_by('-data_inicio')
+    now = timezone.now()
 
     if request.method == 'POST':
         data_inicio = request.POST.get('data_inicio')
@@ -63,7 +65,7 @@ def confirmar_reserva(request):
         reserva.clean()
         reserva.save()
 
-        return redirect('')
+        return redirect('usuarios:index')
     return redirect('reservas:reservar', campo_id=campo_id)
 
 @login_required

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes do Campo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -128,14 +129,67 @@
             <div class="col-md-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Comentários e Avaliações</h5>
-                        <p>Não há comentários ainda.</p>
+                        <!-- Exibir avaliações -->
+                        <h3>Avaliações</h3>
+                        <p>Número de Comentários: {{ avaliacoes.count }}</p>
+        
+                        <!-- Expandir avaliações -->
+                        <div class="text-center mb-3">
+                            <a class="btn btn-primary btn-sm " data-toggle="collapse" href="#avaliacoesCollapse" role="button" aria-expanded="false" aria-controls="avaliacoesCollapse">
+                                <i class="fas fa-chevron-down"></i> Ver avaliações
+                            </a>
+                        </div>
+                        <div class="collapse" id="avaliacoesCollapse">
+                            <div class="card card-body">
+                                {% for avaliacao in avaliacoes %}
+                                    <div class="media mb-4">
+                                        <img src="{{ avaliacao.usuario.userprofile.get_profile_picture_url }}" class="mr-3 rounded-circle" style="width: 60px; height: 60px;">
+                                        <div class="media-body">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="mt-0">{{ avaliacao.usuario.username }}</h5>
+                                                <div class="text-warning">
+                                                    {% for i in "12345" %}
+                                                        {% if i|add:"0"|slice:"0" <= avaliacao.estrelas %}
+                                                            <i class="fas fa-star fa-lg"></i>
+                                                        {% else %}
+                                                            <i class="far fa-star fa-lg"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <p class="text-muted mb-2">{{ avaliacao.data_criacao|date:"d/m/Y H:i" }}</p>
+                                            <p>{{ avaliacao.comentario }}</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                {% empty %}
+                                    <p class="text-center">Sem avaliações ainda.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+        
+                        {% if not avaliacao_existente %}
+                            {% if show_button %}
+                                <div class="card card-body mt-4">
+                                    <h5 class="card-title">Adicionar uma avaliação?</h5>
+                                    <p>Você só poderá fazer isso uma vez.</p>
+                                    <a href="{% url 'avaliacoes:adicionar_avaliacao' campo.id %}" class="btn btn-primary">Adicionar Avaliação</a>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-warning mt-4" role="alert">
+                                Você já avaliou este campo.
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
+        
+        
+        
+        
+        
     <!-- Adicionando o Bootstrap, Leaflet e Flatpickr -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
