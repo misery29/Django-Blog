@@ -38,10 +38,10 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if reserva.is_active %}
-                        <a href="{% url 'reservas:cancelar_reserva' reserva.id %}" class="btn btn-secondary btn-sm rounded-pill">Cancelar</a>
+                    {% if reserva.is_active and reserva.data_fim >= now %}
+                        <a href="{% url 'reservas:cancelar_reserva' reserva.id %}" class="btn btn-primary btn-sm rounded-pill">Cancelar</a>
                     {% else %}
-                        <span class="text-muted">Sem Ação</span>
+                        <span class="btn btn-secondary btn-sm rounded-pill disabled">Finalizada</span>
                     {% endif %}
                 </td>
             </tr>
