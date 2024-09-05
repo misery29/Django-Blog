@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Campo, Reserva
-from django.http import HttpResponse
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -25,7 +25,8 @@ def reservar(request, campo_id):
             reservas_conflitantes = Reserva.objects.filter(
                 campo=campo,
                 data_inicio__lt=data_fim,
-                data_fim__gt=data_inicio
+                data_fim__gt=data_inicio,
+                is_active=True
             )
             if reservas_conflitantes.exists():
                 raise ValidationError("Conflito com outra reserva existente")
@@ -58,31 +59,41 @@ def confirmar_reserva(request):
             campo=campo,
             data_inicio=data_inicio,
             data_fim=data_fim,
-            preco_total=preco_total
+            preco_total=preco_total,
+            is_active = True
         )
 
 
         reserva.clean()
         reserva.save()
 
+        # Notificação para usuários
+        assunto_usuario = 'Confirmação de Reserva'
+        mensagem_usuario = f"Olá {request.user.username}, sua reserva no campo {campo.nome} foi confirmada para {data_inicio} até {data_fim}."
+        email_usuario = request.user.email
+        send_mail(assunto_usuario, mensagem_usuario, settings.EMAIL_HOST_USER, [email_usuario])
+
+        # Notificação para os administradores
+        assunto_admin = 'Nova Reserva Feita'
+        mensagem_admin = f"O usuário {request.user.username} fez uma nova reserva no campo {campo.nome} para o período de {data_inicio} até {data_fim}."
+        admins = User.objects.filter(is_staff=True).values_list('email', flat=True)
+        send_mail(assunto_admin, mensagem_admin, settings.EMAIL_HOST_USER, list(admins))
+
+
         return redirect('usuarios:index')
     return redirect('reservas:reservar', campo_id=campo_id)
 
 @login_required
 def historico_reservas(request):
-    reservas = Reserva.objects.filter(usuario=request.user).order_by('-data_inicio')
+    reservas = Reserva.objects.filter(usuario=request.user, is_active=True).order_by('-data_inicio')
     now = timezone.now()
     return render(request, 'historico_reservas.html', {
         'reservas': reservas,
         'now' : now, })
 
-def test_email_view(request):
-    subject = 'Test Email'
-    message = 'This is a test email sent from Django.'
-    from_email = settings.DEFAULT_FROM_EMAIL
-    recipient_list = ['juaumtest29@gmail.com']
-    try:
-        send_mail(subject, message, from_email, recipient_list)
-        return HttpResponse("Test email sent successfully!")
-    except Exception as e:
-        return HttpResponse(f"Error sending email: {str(e)}")
+@login_required
+def cancelar_reserva(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    reserva.is_active = False
+    reserva.save()
+    return redirect('reservas:historico_reservas')

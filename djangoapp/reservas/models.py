@@ -10,6 +10,7 @@ class Reserva(models.Model):
     data_fim = models.DateTimeField()
     preco_total = models.DecimalField(max_digits=10, decimal_places=2)
     criado_em = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
     def __str__(self):
         return f"Reserva de {self.usuario} no campo {self.campo} de {self.data_inicio} até {self.data_fim}"
 
@@ -18,7 +19,8 @@ class Reserva(models.Model):
         conflitos = Reserva.objects.filter(
             campo=self.campo,
             data_inicio__lt=self.data_fim,
-            data_fim__gt=self.data_inicio
+            data_fim__gt=self.data_inicio,
+            is_active=True
         ).exclude(id=self.pk)
         
         if conflitos.exists():

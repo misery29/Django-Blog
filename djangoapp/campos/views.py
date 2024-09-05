@@ -78,7 +78,7 @@ def geocode_address(cidade, endereco):
 @login_required
 def detail_fields(request, pk):
     campo = get_object_or_404(Campo, pk=pk)
-    reservas = Reserva.objects.filter(usuario=request.user, campo=campo)
+    reservas = Reserva.objects.filter(usuario=request.user, campo=campo, is_active=True)
     now = timezone.now()
     avaliacao_existente = Avaliacao.objects.filter(campo=campo, usuario=request.user).exists()
     avaliacoes_ativas = Avaliacao.objects.filter(campo=campo, is_active=True)
