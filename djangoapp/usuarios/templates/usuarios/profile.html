@@ -92,7 +92,9 @@
         </div>
         <button type="submit" class="btn btn-primary">Salvar</button>
         <a href="{% url 'usuarios:index' %}" class="btn btn-secondary">Voltar</a>
-        <a href="{% url 'reservas:historico_reservas' %}" class="btn btn-info mt-3">Minhas Reservas</a>
+        <a href="{% url 'reservas:historico_reservas' %}" class="btn btn-info">Minhas Reservas</a>
+        <a href="{% url 'mfa_index' %}" class="btn btn-warning">Configurar 2FA</a>
+    </form>
 </div>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>

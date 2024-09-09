@@ -5,6 +5,8 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from datetime import datetime
+from django.utils.timezone import make_aware
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -14,6 +16,7 @@ def reservar(request, campo_id):
 
     if request.method == 'POST':
         data_inicio = request.POST.get('data_inicio')
+        data_inicio_str = make_aware(datetime.strptime(data_inicio, '%Y-%m-%d %H:%M'))
         data_fim = request.POST.get('data_fim')
         preco_total = request.POST.get('preco_total')
 
@@ -21,6 +24,8 @@ def reservar(request, campo_id):
             # Validações
             if data_inicio >= data_fim:
                 raise ValidationError("A data de início deve ser anterior à data de fim")
+            if data_inicio_str < timezone.now():
+                raise ValidationError("A data de início deve ser posterior à data atual")
 
             reservas_conflitantes = Reserva.objects.filter(
                 campo=campo,
@@ -60,7 +65,6 @@ def confirmar_reserva(request):
             data_inicio=data_inicio,
             data_fim=data_fim,
             preco_total=preco_total,
-            is_active = True
         )
 
 
