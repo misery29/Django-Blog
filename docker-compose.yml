@@ -1,22 +1,19 @@
 version: '3.9'
 
 services:
-
   djangoapp:
     container_name: djangoapp
     build:
       context: .
       dockerfile: ./Dockerfile
-    ports:
-      - 8000:8000
     volumes:
       - ./djangoapp:/djangoapp
       - ./data/web/static:/data/web/static
       - ./data/web/media:/data/web/media 
     env_file: 
       - ./dotenv_files/.env
-    depends_on:
-      - psql
+    networks:
+      - django_network
 
   psql:
     container_name: psql
@@ -25,3 +22,21 @@ services:
       - ./data/postgres/data:/var/lib/postgresql/data
     env_file:
       - ./dotenv_files/.env
+    networks:
+      - django_network
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+       - "443:443"
+       - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    networks:
+      - django_network
+
+networks:
+  django_network:
+    driver: bridge

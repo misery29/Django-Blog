@@ -182,3 +182,5 @@ MMFA_EMAIL = {
 
 MFA_ENABLED = True
 MFA_TOTP_ISSUER = 'djangoapp'
+
+CSRF_TRUSTED_ORIGINS = ['https://localhost']
