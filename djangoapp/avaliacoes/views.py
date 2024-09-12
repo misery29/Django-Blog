@@ -22,7 +22,7 @@ def adicionar_avaliacao(request, campo_id):
     ).exists()
 
     if not reserva:
-        return redirect('campos:detalhes', campo_id=campo_id)
+        return redirect('campos:detail_fields', pk=campo_id)
     
     if request.method == 'POST':
         form = AvaliacaoForm(request.POST)

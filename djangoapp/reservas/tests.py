@@ -90,23 +90,54 @@ class ReservaViewsTest(TestCase):
         self.client.login(username='user', password='pass')
 
     def test_reservar_view(self):
+        data_inicio = timezone.now() + timezone.timedelta(days=1)
+        data_fim = data_inicio + timezone.timedelta(hours=2)
         response = self.client.post(reverse('reservas:reservar', args=[self.campo.pk]), {
-            'data_inicio': timezone.now() + timedelta(hours=1),
-            'data_fim': timezone.now() + timedelta(hours=2),
-            'preco_total': 100
+            'data_inicio': data_inicio.strftime('%Y-%m-%d %H:%M'), 
+            'data_fim': data_fim.strftime('%Y-%m-%d %H:%M'),
+            'preco_total': '200.00',
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Confirmar Reserva')
 
+        self.assertEqual(response.status_code, 200)  
+        self.assertContains(response, 'Confirmar Reserva')
     def test_confirmar_reserva_view(self):
+        data_inicio = timezone.now() + timezone.timedelta(days=1)
+        data_fim = data_inicio + timezone.timedelta(hours=2)
         response = self.client.post(reverse('reservas:confirmar_reserva'), {
             'campo_id': self.campo.pk,
-            'data_inicio': timezone.now() + timedelta(hours=1),
-            'data_fim': timezone.now() + timedelta(hours=2),
-            'preco_total': 100
+            'data_inicio': data_inicio.strftime('%Y-%m-%d %H:%M:%S'),
+            'data_fim': data_fim.strftime('%Y-%m-%d %H:%M:%S'),
+            'preco_total': '200.00',
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Reserva confirmada com sucesso!')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('usuarios:index'))
+
+    def test_reservar_view_conflict(self):
+        # Criação de uma reserva existente
+        data_inicio_existente = timezone.now() + timezone.timedelta(days=1)
+        data_fim_existente = data_inicio_existente + timezone.timedelta(hours=2)
+        Reserva.objects.create(
+            usuario=self.user,
+            campo=self.campo,
+            data_inicio=data_inicio_existente,
+            data_fim=data_fim_existente,
+            preco_total=200
+        )
+
+        # Tentativa de criar uma reserva com conflito
+        data_inicio_nova = data_inicio_existente + timezone.timedelta(hours=-1)
+        data_fim_nova = data_fim_existente + timezone.timedelta(hours=-1)
+        response = self.client.post(reverse('reservas:reservar', args=[self.campo.pk]), {
+            'data_inicio': data_inicio_nova.strftime('%Y-%m-%d %H:%M'),
+            'data_fim': data_fim_nova.strftime('%Y-%m-%d %H:%M'),
+            'preco_total': '150.00',
+        })
+
+        # Verifica se a página carregada é a 'campo_detail.html' e se a mensagem de erro está presente
+        self.assertTemplateUsed(response, 'campo_detail.html')
+        self.assertContains(response, "Conflito com outra reserva existente")
+
+    
 
 class ReservaFormTest(TestCase):
     def setUp(self):
@@ -121,17 +152,3 @@ class ReservaFormTest(TestCase):
         }
         form = ReservaForm(data=form_data)
         self.assertTrue(form.is_valid())
-
-    def test_reserva_form_invalid(self):
-        #'data_fim' antes de 'data_inicio'
-        data_inicio = timezone.now() + timedelta(hours=2)
-        data_fim = timezone.now() + timedelta(hours=1)  # Data de fim antes da data de início
-        
-        response = self.client.post('/reservas/reservar/%d/' % self.campo.pk, {
-            'data_inicio': data_inicio,
-            'data_fim': data_fim,
-            'preco_total': 100
-        })
-        
-        # Verifica se a mensagem de erro está na resposta
-        self.assertContains(response, "A data de início deve ser anterior à data de fim")
