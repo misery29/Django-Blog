@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmação e Pagamento</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <!-- Navbar igual ao do template base -->
         <a class="navbar-brand" href="#">
-            <img src="logo.png" alt="AluGol">
+            <i class="fa-solid fa-futbol"></i>
             AluGol
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +49,6 @@
                 <p><strong>Data e Hora de Início:</strong> {{ data_inicio }}</p>
                 <p><strong>Data e Hora de Fim:</strong> {{ data_fim }}</p>
                 <p><strong>Preço Total:</strong> R$ {{ preco_total }}</p>
-                <!-- Aqui você pode adicionar um sistema de pagamento -->
                 <form method="POST" action="{% url 'reservas:confirmar_reserva' %}">
                     {% csrf_token %}
                     <input type="hidden" name="campo_id" value="{{ campo.id }}">

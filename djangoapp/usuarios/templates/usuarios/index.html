@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AluGol - Alugue Campos de Futebol</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
         .field-card img {
             height: 200px;
             object-fit: cover;
-        }
-        .navbar-brand img {
-            height: 40px;
         }
     </style>
 </head>
@@ -19,7 +17,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">
-            <img src="logo.png" alt="AluGol">
+            <i class="fa-solid fa-futbol"></i>
             AluGol
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,13 +53,13 @@
     {% endif %}
 
     <!-- Jumbotron -->
-    <div class="jumbotron jumbotron-fluid text-center">
+    <div class="jumbotron jumbotron-fluid text-center" style="background-image: linear-gradient(rgba(34, 34, 34, 0.7), rgba(0, 0, 0, 0.8)), url('https://www.civitatis.com/blog/wp-content/uploads/2022/10/estadios-futebol.jpg'); background-size: cover; background-position: center;">
         <div class="container">
-            <h1 class="display-4">Bem-vindo ao AluGol!</h1>
-            <p class="lead">O melhor lugar para alugar campos de futebol na sua cidade.</p>
-            <a class="btn btn-primary btn-lg" href="#" role="button">Encontre um campo</a>
+          <h1 class="display-4 text-light ">Bem-vindo ao AluGol!</h1>
+          <p class="lead text-light">O melhor lugar para alugar campos de futebol na sua cidade.</p>
+          <a class="btn btn-primary btn-lg" href="#" role="button">Encontre um campo</a>
         </div>
-    </div>
+      </div>
 
     <!-- Search Form -->
     {% include 'campos.html' %}
@@ -83,13 +81,7 @@
                             <a href="#" class="text-dark">Home</a>
                         </li>
                         <li>
-                            <a href="{% url 'usuarios:profile' %}" class="text-dark">Sobre</a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-dark">Campos</a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-dark">Contato</a>
+                            <a href="{% url 'campos:map_view' %}" class="text-dark">Campos</a>
                         </li>
                     </ul>
                 </div>
